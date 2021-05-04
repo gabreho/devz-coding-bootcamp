@@ -41,6 +41,9 @@ final class HRTree {
     }
     
     func findEmployee(id: String) -> Employee? {
+        if ceo.employeeId == id {
+            return ceo
+        }
         return findEmployee(id: id, node: ceo)
     }
     

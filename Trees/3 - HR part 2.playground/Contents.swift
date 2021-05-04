@@ -2,8 +2,11 @@ import Foundation
 
 // Represents a Node
 class Employee: Hashable {
+    
+    typealias OneOnOneTime = (cost: Int, employee: Employee)
+    
     var employeeId: String
-    var subordinates: [(cost: Int, employee: Employee)]
+    var subordinates: [OneOnOneTime]
     
     init(employeeId: String) {
         self.employeeId = employeeId
@@ -41,6 +44,9 @@ final class HRTree {
     }
     
     func findEmployee(id: String) -> Employee? {
+        if ceo.employeeId == id {
+            return ceo
+        }
         return findEmployee(id: id, node: ceo)
     }
 
@@ -62,18 +68,19 @@ final class HRTree {
 
         return nil
     }
-    
+
     func calculatePropagationTime() -> Int {
-        var time: [Int] = [0] // we store the value in an array so we can pass it as inout param
-        calculatePropagationTime(ceo, currentTime: &time)
-        return time[0]
+        return height(node: self.ceo)
     }
     
-    private func calculatePropagationTime(_ node: Employee, currentTime: inout [Int]) {
-        for (cost, subordinate) in node.subordinates {
-            currentTime[0] = currentTime[0] + cost
-            calculatePropagationTime(subordinate, currentTime: &currentTime)
+    private func height(node: Employee?) -> Int {
+        guard
+            let node = node,
+            let longestOneOnOne: Employee.OneOnOneTime = node.subordinates.sorted(by: { $0.cost > $1.cost }).first
+        else {
+            return 0
         }
+        return longestOneOnOne.cost + height(node: longestOneOnOne.employee)
     }
 }
 
@@ -106,4 +113,4 @@ devz.addEmployee(alberto, manager: gabriel, cost: 6)
   
  */
 
-let totalTime = devz.calculatePropagationTime() // 27
+let totalTime = devz.calculatePropagationTime() // 21
